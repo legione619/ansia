@@ -10,10 +10,10 @@
 - name: Copy Supervisord demon
   become: yes
   template:
-    src: supervisord.conf
+    src: supervisord.service
     dest: /usr/lib/systemd/system/supervisord.service
   notify:
-    - restart demon
+    - reload demon
   when: ansible_distribution  | lower == 'redhat'
 
 
