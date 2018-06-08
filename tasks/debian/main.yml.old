@@ -1,0 +1,75 @@
+
+- name: Install Debian dependencies
+  include: install-dependencies-debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Install Debian dependencies
+  include: install-dependencies-redhat.yml
+  when: "ansible_os_family == 'RedHat'"
+
+
+
+- name: Create Redash installation path
+  become: yes
+  file:
+    path: "{{ redash_installation_path }}"
+    recurse: yes
+    owner: "{{ redash_user }}"
+    mode: 0755
+    state: directory
+
+- name: Download Redash distribution
+  become: yes
+  become_user: "{{ redash_user }}"
+  get_url:
+    url: "{{redash_download_url}}"
+    dest: "{{ redash_download_path }}"
+
+- name: Exctract Redash binaries
+  become: yes
+  become_user: "{{ redash_user }}"
+  raw: "tar -xf {{ redash_download_path }} -C {{ redash_installation_path }}"
+
+- name: Copy Redash env file
+  become: yes
+  become_user: "{{ redash_user }}"
+  template:
+    src: env
+    dest: "{{ redash_installation_path }}/.env"
+
+- name: Install Python requirements 1/2
+  become: yes
+  pip:
+    requirements: "{{ redash_installation_path }}/requirements.txt"
+
+- name: Install Python requirements 2/2
+  become: yes
+  pip:
+    requirements: "{{ redash_installation_path }}/requirements_all_ds.txt"
+
+# - name: Copy Supervisord configuration
+#  become: yes
+#  template:
+#    src: supervisord.conf
+#    dest: /etc/supervisor/conf.d/redash.conf
+
+#- name: Create Postgres User
+#  become: yes
+#  become_user: postgres
+#  raw: "createuser {{ redash_user }} --no-superuser --no-createdb --no-createrole"
+#  ignore_errors: yes
+#  register: _postgres_user_created
+
+
+- name: Install Debian dependencies
+  include: create_database.yml
+  when: "ansible_os_family == 'RedHat'"
+
+
+- name: Restart Supervisord Service
+  become: yes
+  systemd:
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+    name: supervisor

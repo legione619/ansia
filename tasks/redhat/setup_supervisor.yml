@@ -1,0 +1,22 @@
+---
+- name: Copy Supervisord configuration
+  become: yes
+  template:
+    src: supervisord.conf
+    dest: /etc/supervisord.d/redash.ini
+  notify:
+    - restart supervisord
+
+- name: Copy Supervisord demon
+  become: yes
+  template:
+    src: supervisord.conf
+    dest: /usr/lib/systemd/system/supervisord.service
+  notify:
+    - restart demon
+  when: ansible_distribution  | lower == 'redhat'
+
+
+- name: enable and start the redis server
+  become: yes
+  service: name=supervisord enabled=yes state=restarted

@@ -1,0 +1,9 @@
+## include OS family specific task file
+
+- name: if debian, include family specific task file
+  include: "debian/main.yml"
+  when: ansible_os_family | lower == 'debian' 
+
+- name: if redhat, include family specific task file
+  include: "redhat/main.yml"
+  when: ansible_os_family | lower == 'redhat' 

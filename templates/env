@@ -1,0 +1,4 @@
+
+export REDASH_LOG_LEVEL="INFO"
+export REDASH_REDIS_URL={{redash_redis_url}}
+export REDASH_DATABASE_URL={{ redash_database_url }}

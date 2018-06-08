@@ -1,0 +1,18 @@
+---
+- name: restart supervisord
+  become: yes
+  service:
+    name: restart supervisord
+    state: restarted
+
+- name: restart nginx
+  become: yes
+  service:
+    name: nginx
+    state: restarted
+
+- name: reload demon
+  become: yes
+  systemd:
+    name: reload demon
+    systemd: daemon_reload=yes

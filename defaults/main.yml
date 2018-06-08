@@ -1,0 +1,24 @@
+---
+
+redash_user: redash
+
+
+#https://s3.amazonaws.com/redash-releases/redash.4.0.1.b4038.tar.gz
+
+#redash_version: 2.0.0.b2990
+redash_version: 4.0.1.b4038
+
+redash_download_url: "https://s3.amazonaws.com/redash-releases/redash.{{ redash_version }}.tar.gz"
+
+redash_download_path: "/home/{{redash_user}}/redash.tar.gz"
+
+redash_installation_path: /opt/redash
+
+redash_redis_url: redis://localhost:6379/0
+
+redash_database_url: postgresql:///redash
+
+redash_cookie_secret: 62ntgNcc5D24jbRGmQXD96TSdqxrMyN1
+
+redash_http_port: 5000
+redash_http_host: 0.0.0.0

@@ -1,0 +1,55 @@
+- name: Create Redash installation path
+  become: yes
+  file:
+    path: "{{ redash_installation_path }}"
+    recurse: yes
+    owner: "{{ redash_user }}"
+    mode: 0755
+    state: directory
+
+- name: Download Redash distribution
+  become: yes
+  become_user: "{{ redash_user }}"
+  get_url:
+    url: "{{redash_download_url}}"
+    dest: "{{ redash_download_path }}"
+
+- name: Exctract Redash binaries
+  become: yes
+  become_user: "{{ redash_user }}"
+  raw: "tar -xf {{ redash_download_path }} -C {{ redash_installation_path }}"
+
+- name: Copy Redash env file
+  become: yes
+  become_user: "{{ redash_user }}"
+  template:
+    src: env
+    dest: "{{ redash_installation_path }}/.env"
+
+- name: Create COOKIE_SECRET variable and add to export
+  become_user: "{{ redash_user }}"
+  become: yes
+  shell: COOKIE_SECRET=$(pwgen -1s 32);echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> /opt/redash/.env
+  when: ansible_distribution  | lower == 'centos'
+
+- name: Create COOKIE_SECRET variable and add to export
+  become_user: "{{ redash_user }}"
+  become: yes
+  shell: COOKIE_SECRET=$(mkpasswd -l 32);echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> /opt/redash/.env
+  when: ansible_distribution  | lower == 'redhat'
+
+- name: Remove lines with unwanted occurrences 
+  become_user: "{{ redash_user }}"
+  become: yes
+  lineinfile: dest="{{ redash_installation_path }}/.env"
+              regexp="^export REDASH_COOKIE_SECRET=$"
+              state=absent
+  
+
+- name: Create symbolik link on /opt/redash/current
+  become: yes
+  file:
+    src: "{{ redash_installation_path }}"
+    dest: /opt/redash/current
+    state: link
+

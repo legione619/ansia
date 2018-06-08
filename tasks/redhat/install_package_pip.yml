@@ -1,0 +1,105 @@
+- name: enable python27 bash  RH
+  become: yes
+  #shell: 'echo "scl enable python27 bash" >>  /etc/profile'
+  shell: 'echo "source /opt/rh/python27/enable" >>  /etc/profile'
+  when: ansible_distribution  | lower == 'redhat'
+
+
+- name: Install Python requirements 1/2 Centos
+  become: yes
+  pip:
+    requirements: "{{ redash_installation_path }}/requirements.txt"
+  when: ansible_distribution  | lower == 'centos'
+
+
+- name: Install Python requirements 1/2 RH
+  become: yes
+  pip:
+    requirements: "{{ redash_installation_path }}/requirements.txt"
+  environment:
+    LD_LIBRARY_PATH: "/opt/rh/python27/root/usr/lib64"
+    XDG_DATA_DIRS: "/opt/rh/python27/root/usr/share:/usr/local/share:/usr/share"
+    PATH: "/opt/rh/python27/root/usr/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+  when: ansible_distribution  | lower == 'redhat'
+
+
+
+- name: Upgrade pip and setuptools Centos
+  become: yes
+  pip: name={{ item }}
+       extra_args='--upgrade'
+  with_items:
+    - pip
+    - setuptools
+  when: ansible_distribution  | lower == 'centos'
+
+
+
+- name: Upgrade pip and setuptools RH
+  become: yes
+  pip: name={{ item }}
+       extra_args='--upgrade'
+  with_items:
+    - pip
+    - setuptools
+  environment:
+    LD_LIBRARY_PATH: "/opt/rh/python27/root/usr/lib64"
+    XDG_DATA_DIRS: "/opt/rh/python27/root/usr/share:/usr/local/share:/usr/share"
+    PATH: "/opt/rh/python27/root/usr/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+  when: ansible_distribution  | lower == 'redhat'
+
+- yum: name={{ item }}
+  become: yes
+  with_items:
+  - http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+
+
+
+- name: "Install mysql libs"
+  become: yes
+  package:
+    name: "{{ item }}"
+  with_items:
+    - "libpqxx-devel"
+    - "mysql-community-devel"
+  when: ansible_distribution  | lower == 'centos'
+
+- name: "Install mysql libs"
+  become: yes
+  package:
+    name: "{{ item }}"
+  with_items:
+    - "mysql-community-devel"
+  when: ansible_distribution  | lower == 'redhat'
+
+- name: Install Python requirements 2/2
+  become: yes
+  pip:
+    requirements: "{{ redash_installation_path }}/requirements_all_ds.txt"
+  when: ansible_distribution  | lower == 'centos'
+
+
+- name: Install Python requirements 2/2
+  become: yes
+  pip:
+    requirements: "{{ redash_installation_path }}/requirements_all_ds.txt"
+  environment:
+    LD_LIBRARY_PATH: "/opt/rh/python27/root/usr/lib64"
+    XDG_DATA_DIRS: "/opt/rh/python27/root/usr/share:/usr/local/share:/usr/share"
+    PATH: "/opt/rh/python27/root/usr/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+  when: ansible_distribution  | lower == 'redhat'
+
+#pip install influxdb==2.6.0
+# pip install google-api-python-client==1.2 pyOpenSSL==0.14 oauth2client==1.2
+#pip install pyOpenSSL==16.2.0
+#openssl-devel
+
+- name: "install sasl lib dev"
+  become: yes
+  package:
+    name: "{{ item }}"
+  with_items:
+    - "cyrus-sasl-md5"
+    - "cyrus-sasl-gssapi"
+    - "cyrus-sasl-plain"
+

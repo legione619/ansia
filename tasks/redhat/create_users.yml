@@ -1,0 +1,8 @@
+---
+- name: Create redash user
+  become: yes
+  user:
+    name: "{{ redash_user }}"
+    system: yes
+    createhome: yes
+    comment: redash user

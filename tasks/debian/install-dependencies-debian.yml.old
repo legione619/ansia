@@ -1,0 +1,75 @@
+
+- name: Install python-pip
+  become: yes
+  package:
+    name: python-pip
+
+- name: Install python-dev
+  become: yes
+  package:
+    name: python-dev
+
+- name: Install Curl
+  become: yes
+  package:
+    name: curl
+
+- name: Install build-essential
+  become: yes
+  package:
+    name: build-essential
+
+- name: Install pwgen
+  become: yes
+  package:
+    name: pwgen
+
+- name: Install libffi-dev
+  become: yes
+  package:
+    name: libffi-dev
+
+- name: Install libssl-dev
+  become: yes
+  package:
+    name: libssl-dev
+
+- name: Install libmysqlclient-dev
+  become: yes
+  package:
+    name: libmysqlclient-dev
+
+- name: Install libpq-dev
+  become: yes
+  package:
+    name: libpq-dev
+
+- name: Install freetds-dev
+  become: yes
+  package:
+    name: freetds-dev
+
+- name: Install libsasl2-dev
+  become: yes
+  package:
+    name: libsasl2-dev
+
+- name: Install xmlsec1
+  become: yes
+  package:
+    name: xmlsec1
+
+- name: Install postgresql
+  become: yes
+  package:
+    name: postgresql
+
+- name: Install redis-server
+  become: yes
+  package:
+    name: redis-server
+
+- name: Install supervisor
+  become: yes
+  package:
+    name: supervisor

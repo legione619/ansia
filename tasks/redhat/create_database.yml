@@ -1,0 +1,61 @@
+---
+- name: initdb
+  become: yes
+  command: postgresql-setup initdb
+  register: _postgres_created
+  ignore_errors: yes
+
+- name: enable and start the PostgreSQL server
+  become: yes
+  service: name=postgresql enabled=yes state=started
+
+
+
+- name: "Install python-psycopg2 for Create user postgres RH"
+  become: yes
+  package:
+    name: "{{ item }}"
+  with_items:
+    - "python-psycopg2"
+  when: ansible_distribution  | lower == 'redhat'
+
+
+
+- name: Create Postgres User
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: redash
+    password: NULL
+    role_attr_flags: NOCREATEDB,NOSUPERUSER,NOCREATEROLE
+
+- name: Create Postgres DB
+  become: yes
+  become_user: postgres
+  raw: "createdb redash --owner=redash"
+  register: _postgres_created
+  ignore_errors: yes
+   
+
+- name: Set postgres_created
+  set_fact:
+    postgres_created: true
+  when: _postgres_created.stdout.find('already exists') > 0
+
+- name: Execute SQL Initialization Scritp
+  become: yes
+  become_user: redash
+  shell: cd /opt/redash/current; bin/run ./manage.py database create_tables
+  when: (postgres_created is not defined)  and (ansible_distribution  | lower == 'centos')
+
+
+
+- name: Execute SQL Initialization Scritp
+  become: yes
+  become_user: redash
+  shell: cd /opt/redash/current; bin/run ./manage.py database create_tables
+  environment:
+    LD_LIBRARY_PATH: "/opt/rh/python27/root/usr/lib64"
+    XDG_DATA_DIRS: "/opt/rh/python27/root/usr/share:/usr/local/share:/usr/share"
+    PATH: "/opt/rh/python27/root/usr/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+  when: (postgres_created is not defined)  and (ansible_distribution | lower == 'redhat' )

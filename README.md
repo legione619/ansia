@@ -1,0 +1,1 @@
+# Redash Ansible Role
